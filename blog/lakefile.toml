@@ -1,0 +1,18 @@
+name = "verso-blog"
+version = "0.1.0"
+defaultTargets = ["Blog", "generate-blog"]
+
+[[require]]
+name = "verso"
+git = "https://github.com/leanprover/verso.git"
+rev = "css-blog"
+
+# The content of the blog is in this Lean library
+[[lean_lib]]
+name = "Blog"
+
+# The content is linked into an executable that is responsible for
+# generating the HTML for distibution
+[[lean_exe]]
+name = "generate-blog"
+root = "Main"

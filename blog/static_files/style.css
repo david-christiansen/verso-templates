@@ -1,0 +1,132 @@
+
+nav.top ol {
+  display: flex;
+  flex-wrap: wrap; /* Wrap to new lines on small screens */
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  gap: 3rem;
+  font-size: 3rem;
+}
+
+@media (max-width: 600px) {
+  nav.top ol {
+    flex-direction: column; /* Stack vertically on mobile */
+  }
+}
+
+.hl.lean.block {
+  margin-top: 0;
+  margin-bottom: 2.5rem;
+}
+
+.post-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.post-list > li {
+  display: block;
+  border: 1px solid #aaa;
+  border-radius: .5rem;
+  padding: 1.5rem;
+  margin: 2rem 0;
+}
+
+.post-list > li .title {
+  font-weight: bold;
+  font-size: 120%;
+}
+
+.read-more { display: none; }
+
+.post-list > li .read-more::after {
+  content: " »";
+}
+
+.categories {
+  display: none;
+  margin: 0 0 1.5rem 0;
+  padding: 0;
+}
+
+.categories:not(:empty) {
+    display: block;
+}
+
+.categories::before {
+    content: "Category: ";
+}
+
+.categories:has(li:nth-child(2))::before {
+    content: "Categories: ";
+}
+
+.categories li {
+    display: inline;
+}
+
+.categories li:not(:last-child)::after {
+    content: ", ";
+}
+
+.authors {
+  display: none;
+}
+.authors:not(:empty) {
+  display: inline;
+}
+
+.authors::before {
+    content: "By ";
+}
+
+.authors .author:not(:last-child)::after {
+    content: ", ";
+}
+
+.authors .author:last-child::after {
+    content: ". ";
+}
+
+.date {
+  display: inline;
+}
+
+.date:not(:empty)::before {
+  content: "Posted ";
+}
+
+header h1 {
+  font-size: 1.5em;
+  font-family: 'Courier New', Courier, monospace;
+}
+
+main h1 {
+  font-size: 3em;
+}
+
+
+nav.breadcrumbs {
+  font-size: 2rem;
+}
+
+nav.breadcrumbs ol {
+  display: block;
+  padding: 0;
+}
+
+
+nav.breadcrumbs ol li, nav.breadcrumbs ol li a {
+  display: inline;
+  padding: 0;
+  position: inherit;
+  text-wrap: nowrap;
+}
+
+nav.breadcrumbs ol li:not(:last-child)::after {
+  content: " » ";
+}
+
+todo: breadcrumb, make page title smaller/color, can't see links, put posts in boxes
