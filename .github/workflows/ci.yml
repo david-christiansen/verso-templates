@@ -102,21 +102,32 @@ jobs:
             ${{ matrix.example }}/zippers/.lake
           key: ${{matrix.example}}-${{ runner.os }}-${{ steps.cache-keys.outputs.toolchain }}-${{ steps.cache-keys.outputs.lakefile }}-${{ steps.cache-keys.outputs.manifests }}-${{ job.status }}
 
-      - run: pwd
+      - name: Zip build dir(s)
+        run: |
+          tar czf lake-cache.tar.gz ${{ github.workspace }}/${{ matrix.example }}/.lake
 
-      - run: |
-          ls -l ${{matrix.example}}/.lake
-          ls -la  ${{ github.workspace }}/${{ matrix.example }}/.lake/
-          find  ${{ github.workspace }}/${{ matrix.example }}/.lake/ -type f
+      - name: Create tarball
+        run: |
+          cd $GITHUB_WORKSPACE
+
+          # Find all .lake directories under matrix.example, excluding nested ones
+          lake_dirs=$(find ${{ matrix.example }} -name '.lake' -type d ! -path '*/.lake/*')
+
+          if [ -n "$lake_dirs" ]; then
+            tar -czf ${{ matrix.example }}-lake-cache.tar.gz $lake_dirs
+          else
+            # Create empty tarball if no .lake directories found
+            tar -czf ${{ matrix.example }}-lake-cache.tar.gz --files-from /dev/null
+          fi
 
       - name: Upload results
         uses: actions/upload-artifact@v4
         with:
           name: example-${{ matrix.example }}-results
-          path: ${{ github.workspace }}/${{ matrix.example }}/.lake
-
-          retention-days: 1
+          path: ${{ matrix.example }}-lake-cache.tar.gz
+          retention-days: 1        
           if-no-files-found: error
+
 
   generate:
     needs: check
@@ -148,7 +159,17 @@ jobs:
           pattern: example-*-results
           merge-multiple: true
 
-      - name: display all .lake
+      - name: Extract all tarballs
+        run: |
+          # Extract all tarball artifacts
+          for tarball in *.tar.gz; do
+            if [ -f "$tarball" ]; then
+              echo "Extracting $tarball..."
+              tar -xzf "$tarball"
+            fi
+          done
+      
+      - name: Display all .lake
         run: |
           find . -name .lake
 
