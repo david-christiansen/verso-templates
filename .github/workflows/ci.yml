@@ -106,8 +106,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: example-${{ matrix.example }}-results
-          path: |
-            ${{ matrix.example }}/**/.lake
+          path: ${{ matrix.example }}/.lake
           retention-days: 1
 
   generate:
