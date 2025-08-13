@@ -54,14 +54,18 @@ jobs:
           echo "manifests=$LAKE_MANIFESTS" >> $GITHUB_OUTPUT
 
 
-      - name: Cache .lake
-        uses: actions/cache@v4
+      - name: Restore cache of .lake
+        uses: actions/cache/restore@v4
         with:
           path: |
             ${{ matrix.example }}/.lake
             ${{ matrix.example }}/manual/.lake
             ${{ matrix.example }}/zippers/.lake
-          key: ${{ runner.os }}-${{ steps.cache-keys.outputs.toolchain }}-${{ steps.cache-keys.outputs.lakefile }}-${{ steps.cache-keys.outputs.manifests }}
+          restore-keys: |
+            ${{matrix.example}}-${{ runner.os }}-${{ steps.cache-keys.outputs.toolchain }}-${{ steps.cache-keys.outputs.lakefile }}-${{ steps.cache-keys.outputs.manifests }}-success
+            ${{matrix.example}}-${{ runner.os }}-${{ steps.cache-keys.outputs.toolchain }}-${{ steps.cache-keys.outputs.lakefile }}-${{ steps.cache-keys.outputs.manifests }}-
+            ${{matrix.example}}-${{ runner.os }}-${{ steps.cache-keys.outputs.toolchain }}-${{ steps.cache-keys.outputs.lakefile }}-
+            ${{matrix.example}}-${{ runner.os }}-${{ steps.cache-keys.outputs.toolchain }}-
 
       - name: Build ${{ matrix.example }}
         run: |
@@ -71,6 +75,16 @@ jobs:
             cd manual
           fi
           lake build
+
+      - name: Save cache of .lake
+        uses: actions/cache/save@v4
+        if: always()
+        with:
+          path: |
+            ${{ matrix.example }}/.lake
+            ${{ matrix.example }}/manual/.lake
+            ${{ matrix.example }}/zippers/.lake
+          key: ${{matrix.example}}-${{ runner.os }}-${{ steps.cache-keys.outputs.toolchain }}-${{ steps.cache-keys.outputs.lakefile }}-${{ steps.cache-keys.outputs.manifests }}-${{ job.status }}
 
       - name: Upload results
         uses: actions/upload-artifact@v4
