@@ -53,23 +53,14 @@ jobs:
           echo "lakefile=$LAKEFILE" >> $GITHUB_OUTPUT
           echo "manifests=$LAKE_MANIFESTS" >> $GITHUB_OUTPUT
 
-      - name: Set cache paths
-        id: cache-paths
-        run: |
-          paths=$(find ${{ matrix.example }} -name '.lake' -type d ! -path '*/.lake/*' | sort)
-          echo "paths<<EOF" >> $GITHUB_OUTPUT
-          echo "$paths" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-
-      - name: Show paths
-        run: |
-          echo "|${{ steps.cache-paths.outputs.paths }}|"
-
 
       - name: Cache .lake
         uses: actions/cache@v4
         with:
-          path: ${{ steps.cache-paths.outputs.paths }}
+          path: |
+            ${{ matrix.example }}/.lake
+            ${{ matrix.example }}/manual/.lake
+            ${{ matrix.example }}/zippers/.lake
           key: ${{ runner.os }}-${{ steps.cache-keys.outputs.toolchain }}-${{ steps.cache-keys.outputs.lakefile }}-${{ steps.cache-keys.outputs.manifests }}
 
       - name: Build ${{ matrix.example }}
