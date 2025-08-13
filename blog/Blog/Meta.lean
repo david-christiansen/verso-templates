@@ -167,6 +167,9 @@ function initGreeter() {
 }
 "#
 
+/--
+Displays an animated greeter for the front page of the blog.
+-/
 block_component +directive greeter where
   toHtml id _data _goI goB contents := do
     saveJs <| "if (document.getElementById('" ++ id ++ "')) { initGreeter(); }"
@@ -200,6 +203,9 @@ instance [MonadLift m m'] [Monad m'] [MonadConfig m] : MonadConfig m' where
     let x : Config ← (currentConfig : m Config)
     pure x
 
+/--
+Adds navigation breadcrumbs to a template, if the current path is at least as long as `threshold`.
+-/
 def breadcrumbs (threshold : Nat) : Template := do
   if (← read).path.length ≥ threshold then
     let some pathTitles ← parents (← read).site (← read).path

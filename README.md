@@ -21,18 +21,25 @@ an anchor, it is also included in the document; this makes it easier to read the
 ensures that changes to the code are noticed when they might also require changes in the text.
 
 
+## Textbook
 
-## Textbook 
+The textbook example demonstrates how to use a single version of Lean for code examples and the
+document's text. In this example, the Lean code blocks elaborate together with the text of the book.
 
-
-TODO
+Additionally, this example demonstrates one way to extend the `Manual` genre with new features. It
+includes a separate pass for extracting specially-indicated code blocks to their own files, as a
+part of building the book. This can be used to create a downloadable archive of the book's example
+code, without requiring readers to install or use Verso. This feature is implemented by wrapping the
+Lean code block that ships with Verso, so blocks that are to be extracted are indicated as such.
+Then, a custom build pass traverses the document, finding all the indicated examples and writing
+them to files.
 
 # Web
 
 ## Blog
 
-The blog example provides a personal website that describes a few
-smaller projects in Verso.
-
-## Project Description
+The blog example is a personal website that uses Lean code in blog posts. It demonstrates how to
+configure and extend the blog genre, including how to implement a custom theme to control the HTML
+generation, a custom HTML component that generates an animated greeter on the front page, and
+automatic breadcrumbs.
 
