@@ -110,10 +110,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: example-${{ matrix.example }}-results
-          path: |
-            ${{ github.workspace }}/${{ matrix.example }}/.lake
-            ${{ github.workspace }}/${{ matrix.example }}/manual/.lake            
-            ${{ github.workspace }}/${{ matrix.example }}/zippers/.lake
+          path: ${{ github.workspace }}/${{ matrix.example }}/.lake
+
           retention-days: 1
           if-no-files-found: error
 
