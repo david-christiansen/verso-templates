@@ -45,14 +45,11 @@ jobs:
 
           LAKEFILE=""
           find ${{ matrix.example }} -name 'lakefile.*' -type f | grep -v '\.lake' | sort | while read -r file; do
-            echo "FILE IS $file"
             filename=$(echo "$file" | sed 's|^\./||')
-            echo "FILENAME IS $filename"
             file_hash=$(sha256sum "$file" | cut -d' ' -f1)
-            echo "HASH IS $file_hash"
             LAKEFILE="$LAKEFILE--$filename-$file_hash"
-            echo "$LAKEFILE"
           done
+          echo $LAKEFILE
           echo "lakefile=$LAKEFILE" >> "$GITHUB_OUTPUT"
           echo "lakefile=$LAKEFILE"
 
