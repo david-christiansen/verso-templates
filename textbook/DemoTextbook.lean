@@ -40,7 +40,7 @@ It's a good idea to read the document's source together with the rendered output
 The tools in this section come from the Verso namespace `Verso.Genre.Manual.InlineLean`.
 
 The {lean}`lean` code block allows Lean code to be included in the text.
-It is elaborated in the context of the text's elaboration, but in a separate section scope (so the set of variables and opened namespaces can be controlled).
+It is elaborated in the context of the text's elaboration.
 
 ```lean
 inductive NatList where
@@ -50,7 +50,7 @@ inductive NatList where
 
 Use the {lean}`leanSection` directive to create a Lean section that delimits scope changes.
 The {lean}`lean` role allows Lean terms to be included as inline elements in paragraphs.
-Use {lean}`name` to refer to a name that can't be easily elaborated as a term, e.g. due to implicit parameters.
+Use {lean}`name` to refer to a name that can't be easily elaborated as a term, e.g. due to implicit parameters or type classes.
 
 ## Saved Lean Code
 
@@ -123,15 +123,7 @@ Here's one to {ref "sec-ref"}[this section].
 # Viewing the Output
 
 Verso's HTML doesn't presently work correctly when opened directly in a browser, so it should be served via a server.{margin}[This is due to security restrictions on retrieved files: some of the code hovers are deduplicated to a JSON file that's fetched on demand.]
-Python has a simple web server module that's useful for this.
-In the output directory, run:
-```
-python3 -m http.server 8000 --directory .
-```
-The port and root can be customized by modifying the appropriate parameters.
-
-One downside of this simple server is that it sets cache headers optimistically.
-If incorrect hovers are appearing locally, then try disabling caching in your browser's development tools.
+One portable way to do this is documented in the root of this repository.
 
 # Using an Index
 

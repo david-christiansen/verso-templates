@@ -56,15 +56,17 @@ where
         let .arr #[.str fn, .str code] := which.data
           | logError s!"Failed to deserialize saved Lean data {which.data}"
         modify fun saved =>
-          let prior := saved[fn]?.getD ""
-          saved.insert fn (prior ++ code ++ "\n")
+          saved.alter fn fun prior =>
+            let prior := prior.getD ""
+            some (prior ++ code ++ "\n")
 
       if which.name == ``Block.savedImport then
         let .arr #[.str fn, .str code] := which.data
           | logError s!"Failed to deserialize saved Lean import data {which.data}"
         modify fun saved =>
-          let prior := saved[fn]?.getD ""
-          saved.insert fn (code.trimRight ++ "\n" ++ prior)
+          saved.alter fn fun prior =>
+          let prior := prior.getD ""
+          some (code.trimRight ++ "\n" ++ prior)
 
       for b in contents do block b
     | .concat bs | .blockquote bs =>
