@@ -90,7 +90,7 @@ jobs:
         if: always()
         with:
           path: ~/.elan/toolchains
-          key: ${{ runner.os }}-${{ job.status }}-${{ hashFiles('~/.elan/toolchains') }}
+          key: ${{ runner.os }}-${{ job.status }}-${{ hashFiles('**/lean-toolchain') }}
 
       - name: Save cache of .lake
         uses: actions/cache/save@v4
