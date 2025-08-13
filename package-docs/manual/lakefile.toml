@@ -1,5 +1,5 @@
 name = "zipper-manual"
-defaultTargets = ["Docs", "Main"]
+defaultTargets = ["Docs", "docs"]
 
 [[require]]
 name = "verso"

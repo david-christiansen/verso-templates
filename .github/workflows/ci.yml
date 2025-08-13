@@ -2,81 +2,179 @@ name: Check examples
 
 on:
   push:
-    branches-ignore:
-      - 'dependabot/**'
+    branches:
+      - main
   pull_request:
-    types: [opened, synchronize, reopened]
+
 
 jobs:
   check:
     runs-on: ubuntu-latest
-    
+
+    strategy:
+      fail-fast: false
+      matrix:
+        example: ['blog', 'package-docs', 'textbook']
+
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Check out code
+        uses: actions/checkout@v4
 
-    - name: Install elan
-      run: |
-        set -o pipefail
-        curl -sSfL https://github.com/leanprover/elan/releases/download/v4.1.2/elan-x86_64-unknown-linux-gnu.tar.gz | tar xz
-        ./elan-init -y --default-toolchain none
-        echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Install elan
+        run: |
+          set -o pipefail
+          curl -sSfL https://github.com/leanprover/elan/releases/download/v4.1.2/elan-x86_64-unknown-linux-gnu.tar.gz | tar xz
+          ./elan-init -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
 
-    - name: Compute cache keys
-      id: cache-keys
-      run: |
-        TOOLCHAIN=$(find . -name 'lean-toolchain' -type f | grep -v '\.lake' | sort | xargs cat | tr -d '[:space:]' | sha256sum | cut -d' ' -f1)
+      - name: Restore cache of .elan/toolchains
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/.elan/toolchains
+          key: ${{ runner.os }}-success-${{ hashFiles('~/.elan/toolchains') }}
+          restore-keys: |
+            ${{ runner.os }}-success-
+            ${{ runner.os }}-
 
-        LAKEFILE=""
-        find . -name 'lakefile.*' -type f | grep -v '\.lake' | sort | while read -r file; do
-          filename=$(echo "$file" | sed 's|^\./||')
-          file_hash=$(cat "$file" | sha256sum | cut -d' ' -f1)
-          LAKEFILE="${LAKEFILE}-${filename}-${file_hash}"
-        done
+      - name: Compute cache keys
+        id: cache-keys
+        run: |
+          TOOLCHAIN=$(find ${{ matrix.example }} -name 'lean-toolchain' -type f | grep -v '\.lake' | sort | xargs cat | tr -d '[:space:]' | sha256sum | cut -d' ' -f1)
+          echo "toolchain=$TOOLCHAIN" >> "$GITHUB_OUTPUT"
 
-        LAKE_MANIFESTS=""
-        find . -name 'lake-manifest.json' -type f | grep -v '\.lake' | sort | while read -r file; do
-          filename=$(echo "$file" | sed 's|^\./||')
-          file_hash=$(cat "$file" | sha256sum | cut -d' ' -f1)
-          LAKE_MANIFESTS="${LAKE_MANIFESTS}-${filename}-${file_hash}"
-        done
+          LAKEFILE=""
+          while read -r file; do
+            filename=$(echo "$file" | sed 's|^\./||')
+            file_hash=$(sha256sum "$file" | cut -d' ' -f1)
+            LAKEFILE="$LAKEFILE--$filename-$file_hash"
+          done < <(find ${{ matrix.example }} -name 'lakefile.*' -type f | grep -v '\.lake' | sort)
+          echo "$LAKEFILE"
+          echo "lakefile=$LAKEFILE" >> "$GITHUB_OUTPUT"
+          echo "lakefile=$LAKEFILE"
 
-        
-        echo "toolchain=$TOOLCHAIN" >> $GITHUB_OUTPUT
-        echo "lakefile=$LAKEFILE" >> $GITHUB_OUTPUT
-        echo "manifests=$LAKE_MANIFESTS" >> $GITHUB_OUTPUT
+          LAKE_MANIFESTS=""
+          while read -r file; do
+            filename=$(echo "$file" | sed 's|^\./||')
+            file_hash=$(sha256sum "$file" | cut -d' ' -f1)
+            LAKE_MANIFESTS="${LAKE_MANIFESTS}-${filename}-${file_hash}"
+          done < <(find ${{ matrix.example }} -name 'lake-manifest.json' -type f | grep -v '\.lake' | sort)
 
-    - name: Cache .lake
-      uses: actions/cache@v4
-      with:
-        path: |
-          blog/.lake
-          package-docs/zippers/.lake
-          package-docs/manual/.lake
-          textbook/.lake
-        key: ${{ runner.os }}-${{ steps.cache-keys.outputs.toolchain }}-${{ steps.cache-keys.outputs.lakefile }}-${{ steps.cache-keys.outputs.manifests }}
+          echo "manifests=$LAKE_MANIFESTS" >> "$GITHUB_OUTPUT"
+          cat "$GITHUB_OUTPUT"
 
-    - name: Build blog
-      if: always()
-      run: |
-        pushd blog
-        lake build
-        popd
 
-    - name: Build package docs
-      if: always()
-      run: |
-        pushd package-docs/manual
-        lake build
-        popd
+      - name: Restore cache of .lake
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            ${{ matrix.example }}/.lake
+            ${{ matrix.example }}/manual/.lake
+            ${{ matrix.example }}/zippers/.lake
+          key: ${{matrix.example}}-${{ runner.os }}-${{ steps.cache-keys.outputs.toolchain }}-${{ steps.cache-keys.outputs.lakefile }}-${{ steps.cache-keys.outputs.manifests }}-success
+          restore-keys: |
+            ${{matrix.example}}-${{ runner.os }}-${{ steps.cache-keys.outputs.toolchain }}-${{ steps.cache-keys.outputs.lakefile }}-${{ steps.cache-keys.outputs.manifests }}-
+            ${{matrix.example}}-${{ runner.os }}-${{ steps.cache-keys.outputs.toolchain }}-${{ steps.cache-keys.outputs.lakefile }}-
+            ${{matrix.example}}-${{ runner.os }}-${{ steps.cache-keys.outputs.toolchain }}-
 
-    - name: Build textbook
-      if: always()
-      run: |
-        pushd textbook
-        lake build
-        popd
+      - name: Build ${{ matrix.example }}
+        run: |
+          find ${{ matrix.example }} -name 'lean-toolchain' -type f ! -path '*/.lake/*' | while read -r toolchain; do
+            parent=$(dirname "$toolchain")
+            echo "Building in $parent"
+            (cd "$parent" && lake build)
+          done
+
+      - name: Save toolchain cache
+        uses: actions/cache/save@v4
+        if: always()
+        with:
+          path: ~/.elan/toolchains
+          key: ${{ runner.os }}-${{ job.status }}-${{ hashFiles('**/lean-toolchain') }}
+
+      - name: Save cache of .lake
+        uses: actions/cache/save@v4
+        if: always()
+        with:
+          path: |
+            ${{ matrix.example }}/.lake
+            ${{ matrix.example }}/manual/.lake
+            ${{ matrix.example }}/zippers/.lake
+          key: ${{matrix.example}}-${{ runner.os }}-${{ steps.cache-keys.outputs.toolchain }}-${{ steps.cache-keys.outputs.lakefile }}-${{ steps.cache-keys.outputs.manifests }}-${{ job.status }}
+
+      - name: Create tarball
+        run: |
+          cd $GITHUB_WORKSPACE
+
+          # Find all .lake directories under matrix.example, excluding nested ones
+          lake_dirs=$(find ${{ matrix.example }} -name '.lake' -type d ! -path '*/.lake/*')
+
+          if [ -n "$lake_dirs" ]; then
+            tar -czf ${{ matrix.example }}-lake-cache.tar.gz $lake_dirs
+          else
+            # Create empty tarball if no .lake directories found
+            tar -czf ${{ matrix.example }}-lake-cache.tar.gz --files-from /dev/null
+          fi
+
+      - name: Upload results
+        uses: actions/upload-artifact@v4
+        with:
+          name: example-${{ matrix.example }}-results
+          path: ${{ matrix.example }}-lake-cache.tar.gz
+          retention-days: 1        
+          if-no-files-found: error
+
+
+  generate:
+    needs: check
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Install elan
+        run: |
+          set -o pipefail
+          curl -sSfL https://github.com/leanprover/elan/releases/download/v4.1.2/elan-x86_64-unknown-linux-gnu.tar.gz | tar xz
+          ./elan-init -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: Restore cache of .elan/toolchains
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/.elan/toolchains
+          key: ${{ runner.os }}-success-${{ hashFiles('~/.elan/toolchains') }}
+          restore-keys: |
+            ${{ runner.os }}-success-
+            ${{ runner.os }}-
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: example-*-results
+          merge-multiple: true
+
+      - name: Extract all tarballs
+        run: |
+          # Extract all tarball artifacts
+          for tarball in *.tar.gz; do
+            if [ -f "$tarball" ]; then
+              echo "Extracting $tarball..."
+              tar -zxvf "$tarball"
+            fi
+          done
       
-    - name: Generate content
-      run: ./generate.sh
+      - name: Display all .lake
+        run: |
+          find . -name .lake
 
+      - name: Generate content
+        run: ./generate.sh
+
+      - name: Save toolchain cache
+        uses: actions/cache/save@v4
+        if: always()
+        with:
+          path: ~/.elan/toolchains
+          key: ${{ runner.os }}-${{ job.status }}-${{ hashFiles('~/.elan/toolchains') }}
