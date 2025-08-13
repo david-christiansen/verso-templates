@@ -104,7 +104,10 @@ jobs:
 
       - run: pwd
 
-      - run: ls -l ${{matrix.example}}/.lake
+      - run: |
+          ls -l ${{matrix.example}}/.lake
+          ls -la ${{ matrix.example }}/.lake/
+          find ${{ matrix.example }}/.lake/ -type f | head -10
 
       - name: Upload results
         uses: actions/upload-artifact@v4
