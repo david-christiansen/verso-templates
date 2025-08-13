@@ -79,13 +79,11 @@ jobs:
 
       - name: Build ${{ matrix.example }}
         run: |
-          pushd ${{ matrix.example }}
-          # If in the package-docs example, go one more level down
-          if [ -d "manual" ] && [ ! -f "lean-toolchain" ]; then
-            cd manual
-          fi
-          lake build
-          popd
+          find ${{ matrix.example }} -name 'lean-toolchain' -type f ! -path '*/.lake/*' | while read -r toolchain; do
+            parent=$(dirname "$toolchain")
+            echo "Building in $parent"
+            (cd "$parent" && lake build)
+          done
 
       - name: Save toolchain cache
         uses: actions/cache/save@v4
