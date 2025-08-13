@@ -163,7 +163,7 @@ jobs:
           for tarball in *.tar.gz; do
             if [ -f "$tarball" ]; then
               echo "Extracting $tarball..."
-              tar -xzf "$tarball"
+              tar -zxvf "$tarball"
             fi
           done
       
