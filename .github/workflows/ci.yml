@@ -47,7 +47,7 @@ jobs:
             echo "FILE IS $file"
             filename=$(echo "$file" | sed 's|^\./||')
             echo "FILENAME IS $filename"
-            file_hash=$(cat "$file" | sha256sum | cut -d' ' -f1)
+            file_hash=$(sha256sum "$file" | cut -d' ' -f1)
             echo "HASH IS $file_hash"
             LAKEFILE="${LAKEFILE}-${filename}-${file_hash}"
           done
@@ -55,15 +55,15 @@ jobs:
           LAKE_MANIFESTS=""
           find ${{ matrix.example }} -name 'lake-manifest.json' -type f | grep -v '\.lake' | sort | while read -r file; do
             filename=$(echo "$file" | sed 's|^\./||')
-            file_hash=$(cat "$file" | sha256sum | cut -d' ' -f1)
+            file_hash=$(sha256sum "$file" | cut -d' ' -f1)
             LAKE_MANIFESTS="${LAKE_MANIFESTS}-${filename}-${file_hash}"
           done
 
 
-          echo "toolchain=$TOOLCHAIN" >> $GITHUB_OUTPUT
-          echo "lakefile=$LAKEFILE" >> $GITHUB_OUTPUT
-          echo "manifests=$LAKE_MANIFESTS" >> $GITHUB_OUTPUT
-          cat $GITHUB_OUTPUT
+          echo "toolchain=$TOOLCHAIN" >> "$GITHUB_OUTPUT"
+          echo "lakefile=$LAKEFILE" >> "$GITHUB_OUTPUT"
+          echo "manifests=$LAKE_MANIFESTS" >> "$GITHUB_OUTPUT"
+          cat "$GITHUB_OUTPUT"
 
 
       - name: Restore cache of .lake
