@@ -70,7 +70,7 @@ jobs:
           if [ -d "manual" ] && [ ! -f "lean-toolchain" ]; then
             cd manual
           fi
-          lake build
+          lake -v build
 
       - name: Set upload paths
         id: upload-paths
