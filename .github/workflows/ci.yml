@@ -106,9 +106,7 @@ jobs:
         with:
           name: example-${{ matrix.example }}-results
           path: |
-            ${{ matrix.example }}/.lake
-            ${{ matrix.example }}/manual/.lake
-            ${{ matrix.example }}/zippers/.lake
+            ${{ matrix.example }}/**/.lake
           retention-days: 1
 
   generate:
