@@ -102,11 +102,15 @@ jobs:
             ${{ matrix.example }}/zippers/.lake
           key: ${{matrix.example}}-${{ runner.os }}-${{ steps.cache-keys.outputs.toolchain }}-${{ steps.cache-keys.outputs.lakefile }}-${{ steps.cache-keys.outputs.manifests }}-${{ job.status }}
 
+      - run: pwd
+
+      - run: ls -l ${{matrix.example}}/.lake
+
       - name: Upload results
         uses: actions/upload-artifact@v4
         with:
           name: example-${{ matrix.example }}-results
-          path: ${{ matrix.example }}/.lake/**
+          path: ${{ matrix.example }}/.lake
           retention-days: 1
 
   generate:
