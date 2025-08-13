@@ -72,22 +72,14 @@ jobs:
           fi
           lake build
 
-      - name: Set upload paths
-        id: upload-paths
-        run: |
-          cd $GITHUB_WORKSPACE
-
-          lake_dirs=$(find ${{ matrix.example }} -name '.lake' -type d ! -path '*/.lake/*' | sort)
-
-          echo "paths<<EOF" >> $GITHUB_OUTPUT
-          echo "$lake_dirs" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-
       - name: Upload results
         uses: actions/upload-artifact@v4
         with:
           name: example-${{ matrix.example }}-results
-          path: ${{ steps.upload-paths.paths }}
+          path: |
+            ${{ matrix.example }}/.lake
+            ${{ matrix.example }}/manual/.lake
+            ${{ matrix.example }}/zippers/.lake
           retention-days: 1
 
   generate:
