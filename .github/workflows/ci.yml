@@ -1,0 +1,82 @@
+name: Check examples
+
+on:
+  push:
+    branches-ignore:
+      - 'dependabot/**'
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install elan
+      run: |
+        set -o pipefail
+        curl -sSfL https://github.com/leanprover/elan/releases/download/v4.1.2/elan-x86_64-unknown-linux-gnu.tar.gz | tar xz
+        ./elan-init -y --default-toolchain none
+        echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+    - name: Compute cache keys
+      id: cache-keys
+      run: |
+        TOOLCHAIN=$(find . -name 'lean-toolchain' -type f | grep -v '\.lake' | sort | xargs cat | tr -d '[:space:]' | sha256sum | cut -d' ' -f1)
+
+        LAKEFILE=""
+        find . -name 'lakefile.*' -type f | grep -v '\.lake' | sort | while read -r file; do
+          filename=$(echo "$file" | sed 's|^\./||')
+          file_hash=$(cat "$file" | sha256sum | cut -d' ' -f1)
+          LAKEFILE="${LAKEFILE}-${filename}-${file_hash}"
+        done
+
+        LAKE_MANIFESTS=""
+        find . -name 'lake-manifest.json' -type f | grep -v '\.lake' | sort | while read -r file; do
+          filename=$(echo "$file" | sed 's|^\./||')
+          file_hash=$(cat "$file" | sha256sum | cut -d' ' -f1)
+          LAKE_MANIFESTS="${LAKE_MANIFESTS}-${filename}-${file_hash}"
+        done
+
+        
+        echo "toolchain=$TOOLCHAIN" >> $GITHUB_OUTPUT
+        echo "lakefile=$LAKEFILE" >> $GITHUB_OUTPUT
+        echo "manifests=$LAKE_MANIFESTS" >> $GITHUB_OUTPUT
+
+    - name: Cache .lake
+      uses: actions/cache@v4
+      with:
+        path: |
+          blog/.lake
+          package-docs/zippers/.lake
+          package-docs/manual/.lake
+          textbook/.lake
+        key: ${{ runner.os }}-${{ steps.cache-keys.outputs.toolchain }}-${{ steps.cache-keys.outputs.lakefile }}-${{ steps.cache-keys.outputs.manifests }}
+
+    - name: Build blog
+      if: always()
+      run: |
+        pushd blog
+        lake build
+        popd
+
+    - name: Build package docs
+      if: always()
+      run: |
+        pushd package-docs/manual
+        lake build
+        popd
+
+    - name: Build textbook
+      if: always()
+      run: |
+        pushd textbook
+        lake build
+        popd
+      
+    - name: Generate content
+      run: ./generate.sh
+
