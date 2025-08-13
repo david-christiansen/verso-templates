@@ -60,7 +60,7 @@ jobs:
           echo "toolchain=$TOOLCHAIN" >> $GITHUB_OUTPUT
           echo "lakefile=$LAKEFILE" >> $GITHUB_OUTPUT
           echo "manifests=$LAKE_MANIFESTS" >> $GITHUB_OUTPUT
-          echo $GITHUB_OUTPUT
+          cat $GITHUB_OUTPUT
 
 
       - name: Restore cache of .lake
