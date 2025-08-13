@@ -2,10 +2,10 @@ name: Check examples
 
 on:
   push:
-    branches-ignore:
-      - 'dependabot/**'
+    branches:
+      - main
   pull_request:
-    types: [opened, synchronize, reopened]
+
 
 jobs:
   check:
