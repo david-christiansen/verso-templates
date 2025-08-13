@@ -61,6 +61,11 @@ jobs:
           echo "$paths" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
+      - name: Show paths
+        run: |
+          echo "|${{ steps.cache-paths.outputs.paths }}|"
+
+
       - name: Cache .lake
         uses: actions/cache@v4
         with:
