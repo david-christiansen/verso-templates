@@ -61,8 +61,8 @@ jobs:
             ${{ matrix.example }}/.lake
             ${{ matrix.example }}/manual/.lake
             ${{ matrix.example }}/zippers/.lake
+          key: ${{matrix.example}}-${{ runner.os }}-${{ steps.cache-keys.outputs.toolchain }}-${{ steps.cache-keys.outputs.lakefile }}-${{ steps.cache-keys.outputs.manifests }}-success
           restore-keys: |
-            ${{matrix.example}}-${{ runner.os }}-${{ steps.cache-keys.outputs.toolchain }}-${{ steps.cache-keys.outputs.lakefile }}-${{ steps.cache-keys.outputs.manifests }}-success
             ${{matrix.example}}-${{ runner.os }}-${{ steps.cache-keys.outputs.toolchain }}-${{ steps.cache-keys.outputs.lakefile }}-${{ steps.cache-keys.outputs.manifests }}-
             ${{matrix.example}}-${{ runner.os }}-${{ steps.cache-keys.outputs.toolchain }}-${{ steps.cache-keys.outputs.lakefile }}-
             ${{matrix.example}}-${{ runner.os }}-${{ steps.cache-keys.outputs.toolchain }}-
