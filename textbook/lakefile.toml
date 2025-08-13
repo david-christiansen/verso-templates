@@ -1,4 +1,5 @@
 name = "textbook"
+defaultTargets = ["DemoTextbook", "textbook"]
 
 [[require]]
 name = "verso"
