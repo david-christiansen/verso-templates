@@ -77,12 +77,13 @@ jobs:
 
       - name: Build ${{ matrix.example }}
         run: |
-          cd ${{ matrix.example }}
+          pushd ${{ matrix.example }}
           # If in the package-docs example, go one more level down
           if [ -d "manual" ] && [ ! -f "lean-toolchain" ]; then
             cd manual
           fi
           lake build
+          popd
 
       - name: Save toolchain cache
         uses: actions/cache/save@v4
@@ -106,7 +107,7 @@ jobs:
         with:
           name: example-${{ matrix.example }}-results
           path: |
-            ${{ matrix.example }}/**/.lake
+            ~/${{ matrix.example }}/**/.lake
           retention-days: 1
 
   generate:
