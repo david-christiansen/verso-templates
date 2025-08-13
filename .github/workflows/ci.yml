@@ -46,7 +46,9 @@ jobs:
           find ${{ matrix.example }} -name 'lakefile.*' -type f | grep -v '\.lake' | sort | while read -r file; do
             echo "FILE IS $file"
             filename=$(echo "$file" | sed 's|^\./||')
+            echo "FILENAME IS $filename"
             file_hash=$(cat "$file" | sha256sum | cut -d' ' -f1)
+            echo "HASH IS $file_hash"
             LAKEFILE="${LAKEFILE}-${filename}-${file_hash}"
           done
 
