@@ -41,6 +41,7 @@ jobs:
         id: cache-keys
         run: |
           TOOLCHAIN=$(find ${{ matrix.example }} -name 'lean-toolchain' -type f | grep -v '\.lake' | sort | xargs cat | tr -d '[:space:]' | sha256sum | cut -d' ' -f1)
+          echo "toolchain=$TOOLCHAIN" >> "$GITHUB_OUTPUT"
 
           LAKEFILE=""
           find ${{ matrix.example }} -name 'lakefile.*' -type f | grep -v '\.lake' | sort | while read -r file; do
@@ -52,6 +53,8 @@ jobs:
             LAKEFILE="$LAKEFILE--$filename-$file_hash"
             echo "$LAKEFILE"
           done
+          echo "lakefile=$LAKEFILE" >> "$GITHUB_OUTPUT"
+          echo "lakefile=$LAKEFILE"
 
           LAKE_MANIFESTS=""
           find ${{ matrix.example }} -name 'lake-manifest.json' -type f | grep -v '\.lake' | sort | while read -r file; do
@@ -60,9 +63,6 @@ jobs:
             LAKE_MANIFESTS="${LAKE_MANIFESTS}-${filename}-${file_hash}"
           done
 
-
-          echo "toolchain=$TOOLCHAIN" >> "$GITHUB_OUTPUT"
-          echo "lakefile=\"$LAKEFILE\"" >> "$GITHUB_OUTPUT"
           echo "manifests=$LAKE_MANIFESTS" >> "$GITHUB_OUTPUT"
           cat "$GITHUB_OUTPUT"
 
