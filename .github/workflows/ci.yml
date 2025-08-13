@@ -102,10 +102,6 @@ jobs:
             ${{ matrix.example }}/zippers/.lake
           key: ${{matrix.example}}-${{ runner.os }}-${{ steps.cache-keys.outputs.toolchain }}-${{ steps.cache-keys.outputs.lakefile }}-${{ steps.cache-keys.outputs.manifests }}-${{ job.status }}
 
-      - name: Zip build dir(s)
-        run: |
-          tar czf lake-cache.tar.gz ${{ github.workspace }}/${{ matrix.example }}/.lake
-
       - name: Create tarball
         run: |
           cd $GITHUB_WORKSPACE
