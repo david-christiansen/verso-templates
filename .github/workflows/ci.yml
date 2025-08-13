@@ -106,8 +106,8 @@ jobs:
 
       - run: |
           ls -l ${{matrix.example}}/.lake
-          ls -la ${{ matrix.example }}/.lake/
-          find ${{ matrix.example }}/.lake/ -type f | head -10
+          ls -la  ${{ github.workspace }}/${{ matrix.example }}/.lake/
+          find  ${{ github.workspace }}/${{ matrix.example }}/.lake/ -type f
 
       - name: Upload results
         uses: actions/upload-artifact@v4
