@@ -44,21 +44,21 @@ jobs:
           echo "toolchain=$TOOLCHAIN" >> "$GITHUB_OUTPUT"
 
           LAKEFILE=""
-          find ${{ matrix.example }} -name 'lakefile.*' -type f | grep -v '\.lake' | sort | while read -r file; do
+          while read -r file; do
             filename=$(echo "$file" | sed 's|^\./||')
             file_hash=$(sha256sum "$file" | cut -d' ' -f1)
             LAKEFILE="$LAKEFILE--$filename-$file_hash"
-          done
-          echo $LAKEFILE
+          done < <(find ${{ matrix.example }} -name 'lakefile.*' -type f | grep -v '\.lake' | sort)
+          echo "$LAKEFILE"
           echo "lakefile=$LAKEFILE" >> "$GITHUB_OUTPUT"
           echo "lakefile=$LAKEFILE"
 
           LAKE_MANIFESTS=""
-          find ${{ matrix.example }} -name 'lake-manifest.json' -type f | grep -v '\.lake' | sort | while read -r file; do
+          while read -r file; do
             filename=$(echo "$file" | sed 's|^\./||')
             file_hash=$(sha256sum "$file" | cut -d' ' -f1)
             LAKE_MANIFESTS="${LAKE_MANIFESTS}-${filename}-${file_hash}"
-          done
+          done < <(find ${{ matrix.example }} -name 'lake-manifest.json' -type f | grep -v '\.lake' | sort)
 
           echo "manifests=$LAKE_MANIFESTS" >> "$GITHUB_OUTPUT"
           cat "$GITHUB_OUTPUT"
