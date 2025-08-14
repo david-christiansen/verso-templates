@@ -10,7 +10,8 @@ inductive Expr where
 -- ANCHOR_END: Expr
 
 -- ANCHOR: eval
-def Expr.eval (ρ : HashMap String Nat) : Expr → Except String Nat
+def Expr.eval (ρ : HashMap String Nat) :
+    Expr → Except String Nat
   | .var x =>
     if let some v := ρ[x]? then pure v
     else throw s!"{x} not found"
@@ -31,7 +32,8 @@ def Expr.optimize : Expr → Expr
 -- ANCHOR_END: optimize
 
 -- ANCHOR: optimize_correct
-theorem optimize_correct (e : Expr) : e.eval ρ = e.optimize.eval ρ := by
+theorem optimize_correct (e : Expr) :
+    e.eval ρ = e.optimize.eval ρ := by
   -- ANCHOR: lemma
   have : HAdd.hAdd 0 = id := by grind
   -- ANCHOR_END: lemma
