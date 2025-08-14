@@ -34,7 +34,8 @@ inductive Expr where
 
 Given values for the expression's variables, an evaluator assigns a value to the expression as a whole:
 ```anchor eval
-def Expr.eval (ρ : HashMap String Nat) : Expr → Except String Nat
+def Expr.eval (ρ : HashMap String Nat) :
+    Expr → Except String Nat
   | .var x =>
     if let some v := ρ[x]? then pure v
     else throw s!"{x} not found"
@@ -57,7 +58,8 @@ def Expr.optimize : Expr → Expr
 
 To prove this optimizer correct, we can use induction on its call graph.
 ```anchor optimize_correct
-theorem optimize_correct (e : Expr) : e.eval ρ = e.optimize.eval ρ := by
+theorem optimize_correct (e : Expr) :
+    e.eval ρ = e.optimize.eval ρ := by
   have : HAdd.hAdd 0 = id := by grind
   fun_induction Expr.optimize <;> simp [Expr.eval, *]
 ```
@@ -75,7 +77,8 @@ The simplifier takes care of all of them, using the lemma.
 In older versions of Lean, this was more difficult!
 The definition of expressions and the optimizer are the same, but the evaluator represents its environment as a list of pairs because {anchorName eval}`HashMap` was not yet available:
 ```anchor eval (module := Old) (project := "../blog-examples/4.0.0")
-def Expr.eval (ρ : List (String × Nat)) : Expr → Except String Nat
+def Expr.eval (ρ : List (String × Nat)) :
+    Expr → Except String Nat
   | .var x =>
     if let some v := ρ.lookup x then pure v
     else throw s!"{x} not found"
@@ -86,7 +89,8 @@ def Expr.eval (ρ : List (String × Nat)) : Expr → Except String Nat
 
 Back then, the {anchorTerm ind}`fun_induction` tactic was not yet available, so the older proof is by induction on the structure of the expression being optimized:
 ```anchor correct (module := Old) (project := "../blog-examples/4.0.0")
-theorem optimize_correct (e : Expr) : e.eval ρ = e.optimize.eval ρ := by
+theorem optimize_correct (e : Expr) :
+    e.eval ρ = e.optimize.eval ρ := by
   induction e with
   | plus e1 e2 ih1 ih2 =>
     simp only [Expr.optimize]
@@ -100,11 +104,13 @@ Nonetheless, the proof is noisier, and requires steps like unfolding {anchorName
 Furthermore, because there was not nearly as much theory in the standard library back then, this proof also requires additional lemmas:
 ```anchor lemmas (module := Old) (project := "../blog-examples/4.0.0")
 @[simp]
-theorem Except.pure_bind (v : α) (f : α → Except ε β) : pure v >>= f = f v := by
+theorem Except.pure_bind (v : α) (f : α → Except ε β) :
+    pure v >>= f = f v := by
   simp [bind, Except.bind, pure, Except.pure]
 
 @[simp]
-theorem Except.bind_pure_comp (e : Except ε α) : e >>= (pure ·) = e := by
+theorem Except.bind_pure_comp (e : Except ε α) :
+    e >>= (pure ·) = e := by
   cases e <;> simp [bind, Except.bind, pure, Except.pure]
 ```
 

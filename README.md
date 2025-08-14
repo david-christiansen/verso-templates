@@ -3,6 +3,15 @@
 This repository contains templates that can be used to get started with Verso. Each template is a
 full project that can be copied directly and used a basis for your own writing.
 
+Each example can be built or modified independently. Additionally, they can all be examined together
+by running `./generate.sh`, which builds all the examples, copies their output to a single
+directory, and adds an overview page. To build and view all the examples, run:
+```
+$ ./generate.sh
+$ python3 ./serve.py 8000
+```
+The page is served at `localhost:8000`.
+
 
 # Book-Like Examples
 

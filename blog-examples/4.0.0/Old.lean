@@ -17,7 +17,8 @@ def Expr.optimize : Expr → Expr
 -- ANCHOR_END: Optimize
 
 -- ANCHOR: eval
-def Expr.eval (ρ : List (String × Nat)) : Expr → Except String Nat
+def Expr.eval (ρ : List (String × Nat)) :
+    Expr → Except String Nat
   | .var x =>
     if let some v := ρ.lookup x then pure v
     else throw s!"{x} not found"
@@ -28,16 +29,19 @@ def Expr.eval (ρ : List (String × Nat)) : Expr → Except String Nat
 
 -- ANCHOR: lemmas
 @[simp]
-theorem Except.pure_bind (v : α) (f : α → Except ε β) : pure v >>= f = f v := by
+theorem Except.pure_bind (v : α) (f : α → Except ε β) :
+    pure v >>= f = f v := by
   simp [bind, Except.bind, pure, Except.pure]
 
 @[simp]
-theorem Except.bind_pure_comp (e : Except ε α) : e >>= (pure ·) = e := by
+theorem Except.bind_pure_comp (e : Except ε α) :
+    e >>= (pure ·) = e := by
   cases e <;> simp [bind, Except.bind, pure, Except.pure]
 -- ANCHOR_END: lemmas
 
 -- ANCHOR: correct
-theorem optimize_correct (e : Expr) : e.eval ρ = e.optimize.eval ρ := by
+theorem optimize_correct (e : Expr) :
+    e.eval ρ = e.optimize.eval ρ := by
   induction e with
   | plus e1 e2 ih1 ih2 =>
     simp only [Expr.optimize]
