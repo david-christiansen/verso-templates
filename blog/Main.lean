@@ -66,6 +66,7 @@ def blog : Site := site Blog.FrontPage /
   static "static" ← "static_files"
   "about" Blog.About
   "blog" Blog.Posts with
+    Blog.Posts.Comparison
     Blog.Posts.FibIter
     Blog.Posts.Welcome
     Blog.Posts.FirstPost

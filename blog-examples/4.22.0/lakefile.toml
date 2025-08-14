@@ -1,0 +1,9 @@
+name = "examples"
+
+[[require]]
+name = "subverso"
+git = "https://github.com/leanprover/subverso.git"
+ref = "main"
+
+[[lean_lib]]
+name = "New"
