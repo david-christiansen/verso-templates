@@ -32,7 +32,7 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: ~/.elan/toolchains
-          key: ${{ runner.os }}-success-${{ hashFiles('~/.elan/toolchains') }}
+          key: ${{ runner.os }}-success-${{ hashFiles('**/lean-toolchain') }}
           restore-keys: |
             ${{ runner.os }}-success-
             ${{ runner.os }}-
@@ -144,7 +144,7 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: ~/.elan/toolchains
-          key: ${{ runner.os }}-success-${{ hashFiles('~/.elan/toolchains') }}
+          key: ${{ runner.os }}-success-${{ hashFiles('**/lean-toolchain') }}
           restore-keys: |
             ${{ runner.os }}-success-
             ${{ runner.os }}-
@@ -177,4 +177,4 @@ jobs:
         if: always()
         with:
           path: ~/.elan/toolchains
-          key: ${{ runner.os }}-${{ job.status }}-${{ hashFiles('~/.elan/toolchains') }}
+          key: ${{ runner.os }}-${{ job.status }}-${{ hashFiles('**/lean-toolchain') }}
